@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const resetBtn = document.getElementById('resetBtn');
     const floatingHearts = document.getElementById('floatingHearts');
 
-    // Hayır butonunun kaçması
-    noBtn.addEventListener('mouseenter', function() {
+    // Hayır butonunun kaçması - hem mouse hem touch için
+    function moveNoButton() {
         const container = document.querySelector('.container');
         const containerRect = container.getBoundingClientRect();
         const buttonRect = noBtn.getBoundingClientRect();
@@ -53,6 +53,23 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Buton rengini değiştir
         noBtn.style.background = 'linear-gradient(45deg, #ff9800, #ff5722)';
+    }
+
+    // Desktop için mouseenter
+    noBtn.addEventListener('mouseenter', moveNoButton);
+    
+    // Mobil için touchstart ve click
+    noBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        moveNoButton();
+    });
+    
+    noBtn.addEventListener('click', function(e) {
+        // Eğer buton zaten hareket ettiyse, tıklamayı engelle
+        if (noBtn.style.position === 'absolute') {
+            e.preventDefault();
+            return;
+        }
     });
 
     // Evet butonuna tıklandığında
