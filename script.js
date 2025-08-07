@@ -8,6 +8,7 @@
                         const buttonsContainer = document.querySelector('.buttons-container');
                         const MOVE_COOLDOWN_MS = 180;
                         let lastMoveAt = 0;
+                        let heartInterval = null;
 
                         // Hayır butonunun kaçması - hem mouse hem touch/pointer için
                         function moveNoButton() {
@@ -16,10 +17,13 @@
                             lastMoveAt = now;
                             const containerRect = buttonsContainer.getBoundingClientRect();
                             const buttonRect = noBtn.getBoundingClientRect();
+                            const yesRect = yesBtn.getBoundingClientRect();
 
                             // Mevcut pozisyonu (container koordinatlarına göre)
                             const currentX = buttonRect.left - containerRect.left;
                             const currentY = buttonRect.top - containerRect.top;
+                            const yesX = yesRect.left - containerRect.left;
+                            const yesY = yesRect.top - containerRect.top;
 
                             // Sınırlar (container içinde)
                             const maxX = Math.max(0, containerRect.width - buttonRect.width);
@@ -29,9 +33,12 @@
                             let newX = currentX;
                             let newY = currentY;
                             let safety = 0;
-                            while (safety < 50 && Math.abs(newX - currentX) < 40 && Math.abs(newY - currentY) < 40) {
+                            while (safety < 120) {
                                 newX = Math.random() * maxX;
                                 newY = Math.random() * maxY;
+                                const farEnough = Math.abs(newX - currentX) >= 40 || Math.abs(newY - currentY) >= 40;
+                                const overlapsYes = rectsOverlap(newX, newY, buttonRect.width, buttonRect.height, yesX, yesY, yesRect.width, yesRect.height);
+                                if (farEnough && !overlapsYes) break;
                                 safety++;
                             }
 
@@ -53,6 +60,10 @@
                             const randomMessage = messages[Math.floor(Math.random() * messages.length)];
                             noBtn.textContent = randomMessage;
                             noBtn.style.background = 'linear-gradient(45deg, #ff9800, #ff5722)';
+                        }
+
+                        function rectsOverlap(x1, y1, w1, h1, x2, y2, w2, h2) {
+                            return !(x1 + w1 <= x2 || x2 + w2 <= x1 || y1 + h1 <= y2 || y2 + h2 <= y1);
                         }
 
                         // Desktop için: hover'da kaç
@@ -92,6 +103,8 @@
                             createConfetti();
                             createFloatingHearts();
                             playSuccessSound();
+                            // Hayır butonunun alttaki içerikleri engellememesi için
+                            noBtn.style.pointerEvents = 'none';
                         });
 
                         // Reset butonuna tıklandığında
@@ -106,6 +119,13 @@
                             noBtn.textContent = 'Hayır';
                             noBtn.style.background = 'linear-gradient(45deg, #f44336, #d32f2f)';
                             floatingHearts.innerHTML = '';
+                            noBtn.style.pointerEvents = '';
+                            
+                            // Kalp interval'ını temizle
+                            if (heartInterval) {
+                                clearInterval(heartInterval);
+                                heartInterval = null;
+                            }
                         });
 
                         // Konfeti efekti
@@ -136,8 +156,13 @@
 
                         // Uçan kalpler
                         function createFloatingHearts() {
+                            // Önceki interval'ı temizle
+                            if (heartInterval) {
+                                clearInterval(heartInterval);
+                            }
+                            
                             const hearts = ['❤️', '💕', '💖', '💗', '💓', '💝', '💘', '💞'];
-                            setInterval(() => {
+                            heartInterval = setInterval(() => {
                                 const heart = document.createElement('div');
                                 heart.className = 'floating-heart';
                                 heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
