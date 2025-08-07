@@ -72,6 +72,8 @@
         gap: 1rem;
         justify-content: center;
         flex-wrap: wrap;
+        position: relative;
+        min-height: 140px;
     }
 
     .btn {
@@ -104,6 +106,7 @@
         box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
         position: relative;
         z-index: 2;
+        touch-action: none;
     }
 
     .btn-no:hover {
