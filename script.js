@@ -6,9 +6,14 @@
                         const resetBtn = document.getElementById('resetBtn');
                         const floatingHearts = document.getElementById('floatingHearts');
                         const buttonsContainer = document.querySelector('.buttons-container');
+                        const MOVE_COOLDOWN_MS = 180;
+                        let lastMoveAt = 0;
 
                         // Hayır butonunun kaçması - hem mouse hem touch/pointer için
                         function moveNoButton() {
+                            const now = Date.now();
+                            if (now - lastMoveAt < MOVE_COOLDOWN_MS) return;
+                            lastMoveAt = now;
                             const containerRect = buttonsContainer.getBoundingClientRect();
                             const buttonRect = noBtn.getBoundingClientRect();
 
@@ -30,11 +35,15 @@
                                 safety++;
                             }
 
+                            // Güvenli aralıkta tut
+                            newX = Math.min(Math.max(0, newX), maxX);
+                            newY = Math.min(Math.max(0, newY), maxY);
+
                             // Butonu yeni pozisyona taşı
                             noBtn.style.position = 'absolute';
                             noBtn.style.left = newX + 'px';
                             noBtn.style.top = newY + 'px';
-                            noBtn.style.transition = 'left 0.2s ease, top 0.2s ease';
+                            noBtn.style.transition = 'left 0.18s ease, top 0.18s ease';
 
                             // Buton metnini ve rengi değiştir
                             const messages = [
